@@ -10,11 +10,11 @@ export const getUserProfile = async (req, res) => {
       .select("-updatedAt");
 
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      res.status(404).json({ error: "User not found" });
     }
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error from getUserProfile", error.message);
   }
 };
@@ -25,7 +25,7 @@ export const signupUser = async (req, res) => {
 
     const user = await User.findOne({ $or: [{ email }, { username }] });
     if (user) {
-      res.status(400).json({ message: "User already exists" });
+      res.status(400).json({ error: "User already exists" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -37,6 +37,7 @@ export const signupUser = async (req, res) => {
       password: hashedPassword,
     });
     await newUser.save();
+
     if (newUser) {
       generateTokenAndSetCookie(newUser._id, res);
       res.status(201).json({
@@ -46,10 +47,10 @@ export const signupUser = async (req, res) => {
         username: newUser.username,
       });
     } else {
-      res.status(400).json({ message: "invalid user data" });
+      res.status(400).json({ error: "invalid user data" });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log(error.message);
   }
 };
@@ -65,7 +66,7 @@ export const loginUser = async (req, res) => {
     if ((!user, !isPasswordCorrect)) {
       return res
         .status(400)
-        .json({ message: "Username or password is incorrect" });
+        .json({ error: "Username or password is incorrect" });
     }
     generateTokenAndSetCookie(user._id, res);
     res.status(200).json({
@@ -75,7 +76,7 @@ export const loginUser = async (req, res) => {
       username: user.username,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in login User", error.message);
   }
 };
@@ -85,7 +86,7 @@ export const logoutUser = (req, res) => {
     res.cookie("jwt", "", { maxAge: 1 });
     res.status(200).json({ message: "User logged out succesfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in logout User", error.message);
   }
 };
@@ -103,7 +104,7 @@ export const followUnfollowUser = async (req, res) => {
         .json({ message: "you cannot follow/unfollow yourself" });
     }
     if (!userToModify || !currentUser) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({ error: "User not found" });
     }
     const isFollowing = currentUser.following.includes(id);
     console.log(currentUser.following);
@@ -119,7 +120,7 @@ export const followUnfollowUser = async (req, res) => {
       res.status(200).json({ message: "User followed successfully" });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in followUnfollow User", error.message);
   }
 };
@@ -129,11 +130,11 @@ export const updateUser = async (req, res) => {
   const userId = req.user._id;
   try {
     let user = await User.findById(userId);
-    if (!user) return res.status(400).json({ message: "user not found" });
+    if (!user) return res.status(400).json({ error: "user not found" });
     if (req.params.id !== userId.toString())
       return res
         .status(400)
-        .json({ message: "you cannot update other users profile" });
+        .json({ error: "you cannot update other users profile" });
     if (password) {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -147,7 +148,7 @@ export const updateUser = async (req, res) => {
     await user.save();
     res.status(200).json({ message: "Profile updated succesfully", user });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log("Error in update User", error.message);
   }
 };
