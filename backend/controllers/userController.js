@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
+import { v2 as cloudinary } from "cloudinary";
 
 export const getUserProfile = async (req, res) => {
   const { username } = req.params;
@@ -45,6 +46,8 @@ export const signupUser = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         username: newUser.username,
+        bio: newUser.bio,
+        profilePic: newUser.profilePic,
       });
     } else {
       res.status(400).json({ error: "invalid user data" });
@@ -74,6 +77,8 @@ export const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
       username: user.username,
+      bio: user.bio,
+      profilePic: user.profilePic,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -126,12 +131,13 @@ export const followUnfollowUser = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-  const { name, email, username, password, profilePic, bio } = req.body;
-  const userId = req.user._id;
+  const { name, email, username, password, bio } = req.body;
+  let { profilePic } = req.body;
+  const userId = req.user._id.toString();
   try {
     let user = await User.findById(userId);
     if (!user) return res.status(400).json({ error: "user not found" });
-    if (req.params.id !== userId.toString())
+    if (req.params.id !== userId)
       return res
         .status(400)
         .json({ error: "you cannot update other users profile" });
@@ -140,12 +146,24 @@ export const updateUser = async (req, res) => {
       const hashedPassword = await bcrypt.hash(password, salt);
       user.password = hashedPassword;
     }
+    if (profilePic) {
+      if (user.profilePic) {
+        await cloudinary.uploader.destroy(
+          user.profilePic.split("/").pop().split(".")[0]
+        );
+      }
+      const uploadedResponse = await cloudinary.uploader.upload(profilePic, {
+        resource_type: "auto",
+      });
+      profilePic = uploadedResponse.secure_url;
+    }
     user.name = name || user.name;
     user.email = email || user.email;
     user.username = username || user.username;
     user.profilePic = profilePic || user.profilePic;
     user.bio = bio || user.bio;
     await user.save();
+    user.password = null;
     res.status(200).json({ message: "Profile updated succesfully", user });
   } catch (error) {
     res.status(500).json({ error: error.message });
