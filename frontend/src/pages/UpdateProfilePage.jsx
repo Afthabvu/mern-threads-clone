@@ -19,38 +19,44 @@ import useShowToast from "../hooks/useShowToast";
 export default function UpdateProfilePage() {
   const [user, setUser] = useRecoilState(userAtom);
   const [inputs, setInputs] = useState({
-    name: user.name,
-    username: user.username,
-    email: user.email,
-    bio: user.bio,
+    name: user?.name,
+    username: user?.username,
+    email: user?.email,
+    bio: user?.bio,
     password: "",
   });
   const showToast = useShowToast();
   // console.log(user);
   const fileRef = useRef(null);
+  const [updating, setUpdating] = useState(false);
   const { handleImageChange, imgUrl } = usePreviewImage();
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (updating) return;
+    setUpdating(true);
     try {
       const res = await fetch(`/api/users/update/${user._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...inputs, profilePic: imgUrl||undefined }),
+        body: JSON.stringify({ ...inputs, profilePic: imgUrl || undefined }),
       });
       const data = await res.json();
       if (data.error) {
         showToast("Error", data.error, "error");
         return;
       }
-      setUser(data);
+
       showToast("Success", "Profile updated successfully", "success");
+      setUser(data);
 
       localStorage.setItem("user-threads", JSON.stringify(data));
       // console.log(inputs)
     } catch (error) {
       showToast("Error", error, "error");
+    }finally{
+      setUpdating(false)
     }
   };
   return (
@@ -74,7 +80,7 @@ export default function UpdateProfilePage() {
                 <Avatar
                   size="xl"
                   boxShadow={"md"}
-                  src={imgUrl || user.profilePic}
+                  src={imgUrl || user?.profilePic}
                 />
               </Center>
               <Center w="full">
@@ -163,6 +169,7 @@ export default function UpdateProfilePage() {
                 bg: "blue.500",
               }}
               type="submit"
+              isLoading={updating}
             >
               Submit
             </Button>
