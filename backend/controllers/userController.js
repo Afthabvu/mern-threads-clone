@@ -11,7 +11,7 @@ export const getUserProfile = async (req, res) => {
       .select("-updatedAt");
 
     if (!user) {
-      res.status(404).json({ error: "User not found" });
+      res.status(404).json({ error: "User not foundd" });
     }
     res.status(200).json(user);
   } catch (error) {
@@ -162,9 +162,9 @@ export const updateUser = async (req, res) => {
     user.username = username || user.username;
     user.profilePic = profilePic || user.profilePic;
     user.bio = bio || user.bio;
-    await user.save();
+    user = await user.save();
     user.password = null;
-    res.status(200).json({ message: "Profile updated succesfully", user });
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log("Error in update User", error.message);
