@@ -4,7 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 export const createPost = async (req, res) => {
   try {
-    console.log(req.body)
+    console.log(req.body);
     const { postedBy, text } = req.body;
     let { img } = req.body;
     if (!postedBy || !text) {
@@ -123,7 +123,7 @@ export const getFeedPosts = async (req, res) => {
     const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({
       createdAt: -1,
     });
-    res.status(200).json({ feedPosts });
+    res.status(200).json(feedPosts);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
