@@ -1,7 +1,10 @@
 import { useCallback } from "react";
 import useShowToast from "./useShowToast";
+import { useRecoilState } from "recoil";
+import postsAtom from "../atoms/postsAtom";
 
 const useDeletePost = () => {
+  const [posts, setPosts] = useRecoilState(postsAtom);
   const showToast = useShowToast();
   const deletePost = useCallback(async (postId) => {
     try {
@@ -15,6 +18,7 @@ const useDeletePost = () => {
         return;
       }
       showToast("Success", "Post deleted", "success");
+      setPosts(posts.filter((p)=>p._id !==postId))
     } catch (error) {
       showToast("Error", error.message, "error");
     }

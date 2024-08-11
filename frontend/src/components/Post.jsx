@@ -14,6 +14,7 @@ const Post = ({ post, postedBy }) => {
   const showToast = useShowToast();
   const navigate = useNavigate();
   const currentUser = useRecoilValue(userAtom);
+
   const deletePost = useDeletePost();
 
   useEffect(() => {
@@ -138,7 +139,7 @@ const Post = ({ post, postedBy }) => {
             </Box>
           )}
           <Flex gap={3} my={1}>
-            <Actions post={post} />
+            <Actions post={post}  />
           </Flex>
         </Flex>
       </Flex>

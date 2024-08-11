@@ -1,5 +1,5 @@
-import { Button, Container } from "@chakra-ui/react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Container } from "@chakra-ui/react";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import UserPage from "./pages/UserPage";
 import PostPage from "./pages/PostPage";
 import Header from "./components/Header";
@@ -12,28 +12,42 @@ import UpdateProfilePage from "./pages/UpdateProfilePage";
 import CreatePost from "./components/CreatePost";
 
 function App() {
-  const user = useRecoilValue(userAtom);
+  const currentUser = useRecoilValue(userAtom);
+  
+
   return (
     <Container maxW="620px">
       <Header />
       <Routes>
         <Route
           path="/"
-          element={user ? <HomePage /> : <Navigate to={"/auth"} />}
+          element={currentUser ? <HomePage /> : <Navigate to={"/auth"} />}
         />
         <Route
           path="/auth"
-          element={!user ? <AuthPage /> : <Navigate to={"/"} />}
+          element={!currentUser ? <AuthPage /> : <Navigate to={"/"} />}
         />
         <Route
           path="/update"
-          element={user ? <UpdateProfilePage /> : <Navigate to={"/"} />}
+          element={currentUser ? <UpdateProfilePage /> : <Navigate to={"/"} />}
         />
-        <Route path="/:username" element={<UserPage />} />
+        <Route
+          path="/:username"
+          element={
+            currentUser ? (
+              <>
+                <UserPage />
+               <CreatePost/>
+              </>
+            ) : (
+              <UserPage />
+            )
+          }
+        />
         <Route path="/:username/post/:pid" element={<PostPage />} />
       </Routes>
-      {user && <LogoutButton />}
-      {user && <CreatePost />}
+      {currentUser && <LogoutButton />}
+      {/* {user && <CreatePost />} */}
     </Container>
   );
 }
