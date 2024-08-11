@@ -23,10 +23,10 @@ import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
 
 const UserHeader = ({ user }) => {
-  console.log(user);
+  // console.log(user);
   const currentUser = useRecoilValue(userAtom);
   const [following, setFollowing] = useState(
-    user.followers.includes(currentUser._id)
+    user.followers.includes(currentUser?._id)
   );
   const [updating, setUpdating] = useState(false);
   const showToast = useShowToast();
@@ -68,7 +68,7 @@ const UserHeader = ({ user }) => {
         user.followers.pop();
       } else {
         showToast("Success", `Followed ${user.name}`, "success");
-        user.followers.push(currentUser._id);
+        user.followers.push(currentUser?._id);
       }
 
       setFollowing(!following);

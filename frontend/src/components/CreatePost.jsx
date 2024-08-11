@@ -35,7 +35,7 @@ const CreatePost = () => {
   const [remainingChar, setRemainingChar] = useState(MAX_CHAR);
   const user = useRecoilValue(userAtom);
   const showToast = useShowToast();
-  console.log(user);
+  // console.log(user);
   const handleTextChange = (e) => {
     const inputText = e.target.value;
     if (inputText.length > MAX_CHAR) {

@@ -17,7 +17,7 @@ function HomePage() {
           showToast("Error", data.error, "error");
         }
         setPosts(data);
-        console.log(data);
+        // console.log(data);
       } catch (error) {
         showToast("Error", error.message, "error");
       } finally {
