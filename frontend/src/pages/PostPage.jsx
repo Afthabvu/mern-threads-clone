@@ -36,6 +36,7 @@ const PostPage = () => {
   // console.log(user);
   const currentPost = posts[0];
   useEffect(() => {
+    setPosts([]);
     const getPosts = async () => {
       try {
         const res = await fetch(`/api/posts/${pid}`);
@@ -53,7 +54,7 @@ const PostPage = () => {
     getPosts();
   }, [showToast, pid, setPosts]);
   console.log(posts);
-  console.log(currentPost)
+  console.log(currentPost);
 
   const handleDeletePost = async (e) => {
     deletePost(currentPost._id);
@@ -103,7 +104,7 @@ const PostPage = () => {
           border={"1px solid"}
           borderColor={"gray.light"}
         >
-          <Image src={post.img} w={"full"} />
+          <Image src={currentPost.img} w={"full"} />
         </Box>
       )}
 
@@ -124,7 +125,10 @@ const PostPage = () => {
         <Comment
           key={reply._id}
           reply={reply}
-          lastReply={reply._id === currentPost.replies[currentPost.replies.length - 1]._id}
+          lastReply={
+            reply._id ===
+            currentPost.replies[currentPost.replies.length - 1]._id
+          }
         />
       ))}
     </>

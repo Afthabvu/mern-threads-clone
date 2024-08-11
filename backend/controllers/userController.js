@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
+import Post from "../models/postModel.js";
 
 export const getUserProfile = async (req, res) => {
   // fetching user profile with userid or username
@@ -98,7 +99,7 @@ export const loginUser = async (req, res) => {
 export const logoutUser = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 1 });
-    res.status(200).json({message:"User logged out succesfully"}  );
+    res.status(200).json({ message: "User logged out succesfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
     // console.log("Error in logout User", error.message);
@@ -171,7 +172,20 @@ export const updateUser = async (req, res) => {
     user.username = username || user.username;
     user.profilePic = profilePic || user.profilePic;
     user.bio = bio || user.bio;
+
     user = await user.save();
+    //find all the post user replies and  update username and user profile pic
+    await Post.updateMany(
+      { "replies.userId": userId },
+      {
+        $set: {
+          "replies.$[reply].username": user.username,
+          "replies.$[reply].userProfilePic": user.profilePic,
+        },
+      },
+      { arrayFilters: [{ "reply.userId": userId }] }
+    );
+
     user.password = null;
     res.status(200).json(user);
   } catch (error) {
